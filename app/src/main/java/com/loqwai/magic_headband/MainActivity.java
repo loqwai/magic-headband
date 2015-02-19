@@ -23,7 +23,6 @@ public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MagicHeadbandMain";
     private static final String ACTION_USB_PERMISSION = "USB_PERMISSION_GRANTED";
 
-    private BroadcastReceiver receiver;
     private BlinkyTape blinkyTape;
     private UsbManager manager;
 
@@ -31,16 +30,16 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         manager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        receiver = new BroadcastReceiver() {
+        BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
                     Log.d(TAG, "got permission to use the blinky!");
-                    if(blinkyTape == null) {
+                    if (blinkyTape == null) {
                         blinkyTape = BlinkyTape.findBlinkyTape(manager);
                     }
 
-                    if(blinkyTape == null) {
+                    if (blinkyTape == null) {
                         Log.d(TAG, "got permission to use the blinky, but can't find it.");
                     }
 
@@ -53,7 +52,7 @@ public class MainActivity extends ActionBarActivity {
                 if (intent.getAction().equals("android.hardware.usb.action.USB_DEVICE_ATTACHED")) {
                     Log.d(TAG, "I saw a USB device attach.");
                     blinkyTape = BlinkyTape.findBlinkyTape(manager);
-                    if(blinkyTape == null) {
+                    if (blinkyTape == null) {
                         return;
                     }
 
