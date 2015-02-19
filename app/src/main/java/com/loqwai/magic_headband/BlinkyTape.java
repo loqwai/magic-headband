@@ -41,8 +41,10 @@ public class BlinkyTape {
         port.open(connection);
         port.setParameters(57600, 8, 1, 0);
         byte[] bytes = new byte[64 * 3];
-        for( int i = 0; i < bytes.length; i++)
-            bytes[i] = (byte)(Math.random() * 255);
+        for( int i = 0; i < bytes.length - 1; i++)
+            bytes[i] = (byte)254;
+
+        bytes[bytes.length - 1] = (byte)255;
         port.write(bytes, 500);
         return true;
     }
