@@ -40,22 +40,7 @@ public class MainActivity extends ActionBarActivity {
                 switch (intent.getAction()) {
                     case ACTION_USB_PERMISSION:
                         setStatus("Permission Granted");
-                        blinkyTape = BlinkyTape.findBlinkyTape(manager);
-                        if (blinkyTape == null) {
-                            setStatus("Can't find Magic Headband");
-                            return;
-                        }
-                        try {
-                            setStatus("Connecting to Magic Headband");
-                            if (blinkyTape.connect()) {
-                                setStatus("Connected!");
-                                return;
-                            }
-                            setStatus("Problem connecting. Asking for permission again.");
-                            askForPermission();
-                        } catch (IOException e) {
-                            setStatus("Error: " + e.getMessage());
-                        }
+                        findBlinkyAndConnect();
                         return;
 
                     case USB_DEVICE_ATTACHED:
@@ -83,6 +68,27 @@ public class MainActivity extends ActionBarActivity {
         filter.addAction(USB_DEVICE_ATTACHED);
         registerReceiver(receiver, filter);
         setContentView(R.layout.activity_main);
+        findBlinkyAndConnect();
+    }
+
+    private boolean findBlinkyAndConnect() {
+        blinkyTape = BlinkyTape.findBlinkyTape(manager);
+        if (blinkyTape == null) {
+            setStatus("Can't find Magic Headband");
+            return true;
+        }
+        try {
+            setStatus("Connecting to Magic Headband");
+            if (blinkyTape.connect()) {
+                setStatus("Connected!");
+                return true;
+            }
+            setStatus("Problem connecting. Asking for permission.");
+            askForPermission();
+        } catch (IOException e) {
+            setStatus("Error: " + e.getMessage());
+        }
+        return false;
     }
 
     private void askForPermission() {
@@ -128,14 +134,14 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void renderYellow(View view) {
-        setStatus("Rendering red.");
+        setStatus("Rendering yellow.");
         if(blinkyTape != null) {
             blinkyTape.render(Color.YELLOW);
         }
     }
 
     public void renderBlue(View view) {
-        setStatus("Rendering red.");
+        setStatus("Rendering blue.");
         if(blinkyTape != null) {
             blinkyTape.render(Color.BLUE);
         }
