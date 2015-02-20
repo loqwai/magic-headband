@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.support.v7.app.ActionBarActivity;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -116,5 +118,26 @@ public class MainActivity extends ActionBarActivity {
         Log.d(TAG, status);
         TextView view =(TextView)findViewById(R.id.statusView);
         view.setText(status);
+    }
+
+    public void renderRed(View view) {
+        setStatus("Rendering red.");
+        if(blinkyTape != null) {
+            blinkyTape.render(Color.RED);
+        }
+    }
+
+    public void renderYellow(View view) {
+        setStatus("Rendering red.");
+        if(blinkyTape != null) {
+            blinkyTape.render(Color.YELLOW);
+        }
+    }
+
+    public void renderBlue(View view) {
+        setStatus("Rendering red.");
+        if(blinkyTape != null) {
+            blinkyTape.render(Color.BLUE);
+        }
     }
 }

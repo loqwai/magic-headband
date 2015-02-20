@@ -10,14 +10,17 @@ import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by redaphid on 2/18/15.
  */
 public class BlinkyTape {
+    public static int LED_COUNT = 60;
     private static final int TIMEOUT = 500;
     private UsbManager manager;
     private UsbDevice device;
@@ -40,28 +43,36 @@ public class BlinkyTape {
         port.open(connection);
         port.setParameters(57600, 8, 1, 0);
 
-        render(Arrays.asList(Color.MAGENTA, Color.MAGENTA, Color.BLUE, Color.RED));
         readyToGo = true;
         return true;
     }
 
-    //disclaimer: this is using the android color standard. I am not responsible.
-    public boolean render(Collection<Integer> colors) {
-        byte[] bytes = new byte[colors.size() * 3 + 1];
-        int i = 0;
-        for(Integer color : colors) {
-           bytes[i++] = (byte)254;
-            bytes[i++] = (byte)254;
-            bytes[i++] = (byte)254;
+    public boolean render (int color) {
+        List<Integer> colors = new ArrayList<>(60);
+        for(int i = 0; i < 60; i++){
+            colors.add(color);
         }
-        for(i = 0; i < bytes.length; i++) {
+
+        return render(colors);
+    }
+
+    public boolean render(Collection<Integer> colors) {
+        byte[] bytes = new byte[colors.size() * 3 + 2];
+        int i = 1;
+        for(Integer color : colors) {
+           bytes[i++] = (byte)Color.red(color);
+            bytes[i++] = (byte)Color.green(color);
+            bytes[i++] = (byte)Color.blue(color);
+        }
+        for(i = 1; i < bytes.length; i++) {
             if(bytes[i] == -1)
                 bytes[i] = (byte)254;
         }
-
+        bytes[0] = (byte)255;
         bytes[bytes.length - 1] = (byte)255;
 
         try {
+            port.write(bytes, TIMEOUT);
             port.write(bytes, TIMEOUT);
             return true;
         } catch (IOException e) {
