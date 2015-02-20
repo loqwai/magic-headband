@@ -14,11 +14,14 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <service android:name=".BlinkyTapeService">
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
                 <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
+                <action android:name="BLINKY_TAPE_ANIMATE" />
             </intent-filter>
-        </activity>
+        </service>
     </application>
 
 </manifest>

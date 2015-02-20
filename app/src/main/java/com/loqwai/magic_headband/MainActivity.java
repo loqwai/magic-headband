@@ -6,10 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
-import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,84 +16,14 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
-    private static final String TAG = "MagicHeadbandMain";
-    private static final String ACTION_USB_PERMISSION = "USB_PERMISSION_GRANTED";
-    private static final String USB_DEVICE_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
-
-    private BlinkyTape blinkyTape;
-    private UsbManager manager;
-
+    private static String TAG = "MagicHeadbandMain";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        manager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                switch (intent.getAction()) {
-                    case ACTION_USB_PERMISSION:
-                        setStatus("Permission Granted");
-                        findBlinkyAndConnect();
-                        return;
-
-                    case USB_DEVICE_ATTACHED:
-                        setStatus("USB device attached");
-                        blinkyTape = BlinkyTape.findBlinkyTape(manager);
-                        if (blinkyTape == null) {
-                            setStatus("Can't find Magic Headband");
-                            return;
-                        }
-                        try {
-                            if (!blinkyTape.connect()) {
-                                setStatus("Asking for permission to use Magic Headband.");
-                                askForPermission();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        return;
-                }
-            }
-        };
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_USB_PERMISSION);
-        filter.addAction(USB_DEVICE_ATTACHED);
-        registerReceiver(receiver, filter);
         setContentView(R.layout.activity_main);
-        findBlinkyAndConnect();
-    }
-
-    private boolean findBlinkyAndConnect() {
-        blinkyTape = BlinkyTape.findBlinkyTape(manager);
-        if (blinkyTape == null) {
-            setStatus("Can't find Magic Headband");
-            return true;
-        }
-        try {
-            setStatus("Connecting to Magic Headband");
-            if (blinkyTape.connect()) {
-                setStatus("Connected!");
-                return true;
-            }
-            setStatus("Problem connecting. Asking for permission.");
-            askForPermission();
-        } catch (IOException e) {
-            setStatus("Error: " + e.getMessage());
-        }
-        return false;
-    }
-
-    private void askForPermission() {
-        Log.d(TAG, "asking for permission");
-        manager.requestPermission(blinkyTape.getDevice(),
-                PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0));
     }
 
 
@@ -128,22 +57,24 @@ public class MainActivity extends ActionBarActivity {
 
     public void renderRed(View view) {
         setStatus("Rendering red.");
-        if(blinkyTape != null) {
-            blinkyTape.render(Color.RED);
-        }
+        messageBlinky(Color.RED);
     }
 
     public void renderYellow(View view) {
         setStatus("Rendering yellow.");
-        if(blinkyTape != null) {
-            blinkyTape.render(Color.YELLOW);
-        }
+        messageBlinky(Color.YELLOW);
     }
 
     public void renderBlue(View view) {
         setStatus("Rendering blue.");
-        if(blinkyTape != null) {
-            blinkyTape.render(Color.BLUE);
-        }
+        messageBlinky(Color.BLUE);
+    }
+
+    private void messageBlinky(int color) {
+        Intent intent = new Intent(BlinkyTapeService.ANIMATE_INTENT);
+        intent.putExtra("color", color);
+        intent.setClass(this, BlinkyTapeService.class);
+
+        startService(intent);
     }
 }
