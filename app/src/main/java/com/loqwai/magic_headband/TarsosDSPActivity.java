@@ -14,12 +14,14 @@ import android.widget.TextView;
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
 import be.tarsos.dsp.io.android.AudioDispatcherFactory;
+import be.tarsos.dsp.onsets.OnsetHandler;
+import be.tarsos.dsp.onsets.PercussionOnsetDetector;
 import be.tarsos.dsp.pitch.PitchDetectionHandler;
 import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.pitch.PitchProcessor;
 import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 
-public class TarsosDSPActivity extends ActionBarActivity {
+public class TarsosDSPActivity extends ActionBarActivity implements OnsetHandler {
     private static String TAG = "TarsosMagicHeadband";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,7 @@ public class TarsosDSPActivity extends ActionBarActivity {
 
             }
         }));
+        dispatcher.addAudioProcessor(new PercussionOnsetDetector(22050, 1024, 0, this));
         new Thread(dispatcher,"Audio Dispatcher").start();
     }
 
@@ -61,6 +64,13 @@ public class TarsosDSPActivity extends ActionBarActivity {
         hsv[2] = 1.0f;
         messageBlinky(Color.HSVToColor(hsv));
     }
+
+    @Override
+    public void handleOnset(double v, double v2) {
+        Log.d(TAG, "bass is dropping!");
+        messageBlinky(Color.WHITE);
+    }
+
 
     /**
 	 * A placeholder fragment containing a simple view.
