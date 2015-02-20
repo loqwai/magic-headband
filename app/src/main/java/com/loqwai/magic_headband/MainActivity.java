@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MagicHeadbandMain";
     private static final String ACTION_USB_PERMISSION = "USB_PERMISSION_GRANTED";
+    private static final String USB_DEVICE_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
 
     private BlinkyTape blinkyTape;
     private UsbManager manager;
@@ -33,43 +35,50 @@ public class MainActivity extends ActionBarActivity {
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
-                    Log.d(TAG, "got permission to use the blinky!");
-                    if (blinkyTape == null) {
+                switch (intent.getAction()) {
+                    case ACTION_USB_PERMISSION:
+                        setStatus("Permission Granted");
                         blinkyTape = BlinkyTape.findBlinkyTape(manager);
-                    }
-
-                    if (blinkyTape == null) {
-                        Log.d(TAG, "got permission to use the blinky, but can't find it.");
-                    }
-
-                    try {
-                        blinkyTape.connect();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (intent.getAction().equals("android.hardware.usb.action.USB_DEVICE_ATTACHED")) {
-                    Log.d(TAG, "I saw a USB device attach.");
-                    blinkyTape = BlinkyTape.findBlinkyTape(manager);
-                    if (blinkyTape == null) {
-                        return;
-                    }
-
-                    try {
-                        if (!blinkyTape.connect()) {
-                            askForPermission();
+                        if (blinkyTape == null) {
+                            setStatus("Can't find Magic Headband");
+                            return;
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                        try {
+                            setStatus("Connecting to Magic Headband");
+                            if (blinkyTape.connect()) {
+                                setStatus("Connected!");
+                                return;
+                            }
+                            setStatus("Problem connecting. Asking for permission again.");
+                            askForPermission();
+                        } catch (IOException e) {
+                            setStatus("Error: " + e.getMessage());
+                        }
+                        return;
 
+                    case USB_DEVICE_ATTACHED:
+                        setStatus("USB device attached");
+                        blinkyTape = BlinkyTape.findBlinkyTape(manager);
+                        if (blinkyTape == null) {
+                            setStatus("Can't find Magic Headband");
+                            return;
+                        }
+                        try {
+                            if (!blinkyTape.connect()) {
+                                setStatus("Asking for permission to use Magic Headband.");
+                                askForPermission();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return;
                 }
             }
         };
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_USB_PERMISSION);
-        filter.addAction("android.hardware.usb.action.USB_DEVICE_ATTACHED");
+        filter.addAction(USB_DEVICE_ATTACHED);
         registerReceiver(receiver, filter);
         setContentView(R.layout.activity_main);
     }
@@ -101,5 +110,11 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setStatus(String status) {
+        Log.d(TAG, status);
+        TextView view =(TextView)findViewById(R.id.statusView);
+        view.setText(status);
     }
 }
