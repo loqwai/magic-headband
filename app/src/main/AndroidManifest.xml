@@ -22,6 +22,11 @@
                 <action android:name="BLINKY_TAPE_ANIMATE" />
             </intent-filter>
         </service>
+        <service android:name=".AudioPitchService">
+            <intent-filter>
+                <action android:name="PITCH" />
+            </intent-filter>
+        </service>
     </application>
-
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 </manifest>

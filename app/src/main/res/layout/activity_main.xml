@@ -50,4 +50,13 @@
         android:id="@+id/yellowButton"
         android:layout_below="@+id/blueButton"
         android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Setup Audio"
+        android:onClick="setupAudio"
+        android:id="@+id/setupAudio"
+        android:layout_below="@+id/yellowButton"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
